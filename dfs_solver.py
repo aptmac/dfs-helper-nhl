@@ -1,7 +1,11 @@
 #!/usr/bin/python3
 
+# Modified and inspired by:
+# https://kyle-stahl.com/draftkings
+
 import pandas as pd
-import json, pulp, sys
+import json, os, pulp, sys
+from pathlib import Path
 
 # 5 players for single game, 9 players for multi
 
@@ -13,12 +17,12 @@ def open_json():
 
 def fetch_title(rawdata, g_id):
     title = g_id
-    if g_id != 'Multigame':
+    if g_id != 'multigame':
         found = False
         while found == False:
             for player in rawdata['players']['result']:
                 if player['gameCode'] == g_id:
-                    title = player['homeTeam'] + ' vs. ' + player['awayTeam']
+                    title = player['homeTeam'] + 'v' + player['awayTeam']
                     found = True
                     break
     return title
@@ -80,7 +84,7 @@ def solve(rawdata, g_id, salary, numplayers):
     # model += (C_constraint <= 3)
     # model += (RW_constraint <= 3)
     # model += (D_constraint == 2)
-    model += (G_constraint == 0)
+    model += (G_constraint == 0) # TODO: figure out which goalie is starting, so it doesn't recommend a lineup of goalies
     model += (total_players == numplayers)
 
     print('--- (3/4) Solving the problem ---')
@@ -98,12 +102,20 @@ def solve(rawdata, g_id, salary, numplayers):
     print(my_team)
     print("Total used amount of salary cap: {}".format(my_team["salary"].sum()))
     print("Projected points: {}".format(my_team["fppg"].sum().round(1)))
+
+    # write to json file
+    if not os.path.exists('./results'):
+        os.makedirs('./results')
+    p = Path(sys.argv[1])
+    p.with_suffix('')
+    my_team.to_json('./results/' + p.stem + '-' + title + '.json', indent=2, orient='table')
+
     print('--- Completed ---')
 
 def main():
     rawdata = open_json()
     # Create lineup for the multigame slate
-    solve(rawdata, 'Multigame', rawdata['salaryCapInfo']['result'][0]['multiGameSalaryCap'], 9)
+    solve(rawdata, 'multigame', rawdata['salaryCapInfo']['result'][0]['multiGameSalaryCap'], 9)
     # Create lineups for individual games
     for key in rawdata['salaryCapInfo']['result'][0]['singleGameSalaryCapMap'].keys():
         g_id, salary = key, rawdata['salaryCapInfo']['result'][0]['singleGameSalaryCapMap'][key]

@@ -26,6 +26,7 @@ def main():
     data = fetch_data()
     date = retrieve_date(data)
     write_data(data, date)
+    # TODO: add option to output to console, so the data can be piped into the solver
 
 if __name__ == "__main__":
     main()
