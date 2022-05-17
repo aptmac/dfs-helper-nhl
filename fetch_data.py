@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import json, os
+import json, os, sys
 from datetime import datetime
 from urllib.request import urlopen
 
@@ -21,11 +21,20 @@ def write_data(data, date):
     with open('./rawdata/' + date + '.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4)
 
+def print_data(data):
+    json.dump(data, sys.stdout, indent=4)
+
 def main():
     data = fetch_data()
     date = retrieve_date(data)
-    write_data(data, date)
-    # TODO: add option to output to console, so the data can be piped into the solver
+    if len(sys.argv) == 2:
+        if sys.argv[1] == '-file' or sys.argv[1] == '-f':
+            write_data(data, date)
+        elif sys.argv[1] == '-print' or sys.argv[1] == '-p':
+            print_data(data)
+    else:
+        write_data(data, date)
+        print_data(data)
 
 if __name__ == "__main__":
     main()

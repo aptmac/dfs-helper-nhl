@@ -5,9 +5,7 @@
 
 import pandas as pd
 import json, os, pulp, sys
-from pathlib import Path
-
-# 5 players for single game, 9 players for multi
+from datetime import datetime
 
 rawdata = {}
 
@@ -30,7 +28,6 @@ def fetch_title(rawdata, g_id):
 def solve(rawdata, g_id, salary, numplayers):
     title = fetch_title(rawdata, g_id)
     players = pd.DataFrame(rawdata['players']['result'])
-    print(players)
     players["LW"] = (players["position"] == "LW").astype(float)
     players["C"] = (players["position"] == "C").astype(float)
     players["RW"] = (players["position"] == "RW").astype(float)
@@ -106,14 +103,19 @@ def solve(rawdata, g_id, salary, numplayers):
     # write to json file
     if not os.path.exists('./results'):
         os.makedirs('./results')
-    p = Path(sys.argv[1])
-    p.with_suffix('')
-    my_team.to_json('./results/' + p.stem + '-' + title + '.json', indent=2, orient='table')
+    my_team.to_json('./results/' + retrieve_date(rawdata) + '-' + title + '.json', indent=2, orient='table')
 
     print('--- Completed ---')
 
+def retrieve_date(data):
+    timestamp = data['currentTime'] / 1000 # Yahoo lists in ms, datetime uses seconds
+    return datetime.fromtimestamp(timestamp).strftime('%Y%m%dT%H%M%S')
+
 def main():
-    rawdata = open_json()
+    if len(sys.argv) == 2:
+        rawdata = open_json()
+    else:
+        rawdata = json.loads(sys.stdin.read())
     # Create lineup for the multigame slate
     solve(rawdata, 'multigame', rawdata['salaryCapInfo']['result'][0]['multiGameSalaryCap'], 9)
     # Create lineups for individual games
