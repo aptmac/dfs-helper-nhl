@@ -67,7 +67,7 @@ def solve(rawdata, g_id, salary, numplayers):
     model += objective_function
 
     total_cost = pulp.LpAffineExpression(cost)
-    model += (total_cost <= 200)
+    model += (total_cost <= salary)
 
     print('--- (2/4) Defining the constraints ---')
     LW_constraint = pulp.LpAffineExpression(lw)
@@ -77,11 +77,15 @@ def solve(rawdata, g_id, salary, numplayers):
     G_constraint = pulp.LpAffineExpression(g)
     total_players = pulp.LpAffineExpression(num_players)
 
-    # model += (LW_constraint <= 3)
-    # model += (C_constraint <= 3)
-    # model += (RW_constraint <= 3)
-    # model += (D_constraint == 2)
-    model += (G_constraint == 0) # TODO: figure out which goalie is starting, so it doesn't recommend a lineup of goalies
+    # TODO: multigame is 2G, 2C, 3W, 2D
+    if g_id == 'multigame':
+        model += (LW_constraint <= 3)
+        model += (C_constraint == 2)
+        model += (RW_constraint <= 3)
+        model += (D_constraint == 2)
+        model += (G_constraint == 2) # TODO: figure out which goalie is starting, so it doesn't recommend a lineup of goalies
+    else: # temporary, just add a max of one goalie
+        model += (G_constraint <= 1) # TODO: figure out which goalie is starting, so it doesn't recommend a lineup of goalies
     model += (total_players == numplayers)
 
     print('--- (3/4) Solving the problem ---')
