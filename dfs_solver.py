@@ -26,8 +26,11 @@ def fetch_title(rawdata, g_id):
     return title
 
 def solve(rawdata, g_id, salary, numplayers):
-    title = fetch_title(rawdata, g_id)
     players = pd.DataFrame(rawdata['players']['result'])
+    # TODO: add filter for non-starting goalies and injured/suspended players
+    if g_id != 'multigame':
+        players = players[players.gameCode == g_id].reset_index()
+
     players["LW"] = (players["position"] == "LW").astype(float)
     players["C"] = (players["position"] == "C").astype(float)
     players["RW"] = (players["position"] == "RW").astype(float)
@@ -75,7 +78,7 @@ def solve(rawdata, g_id, salary, numplayers):
     RW_constraint = pulp.LpAffineExpression(rw)
     D_constraint = pulp.LpAffineExpression(d)
     G_constraint = pulp.LpAffineExpression(g)
-    total_players = pulp.LpAffineExpression(num_players)
+    total_players_constraint = pulp.LpAffineExpression(num_players)
 
     # TODO: multigame is 2G, 2C, 3W, 2D
     if g_id == 'multigame':
@@ -85,8 +88,10 @@ def solve(rawdata, g_id, salary, numplayers):
         model += (D_constraint == 2)
         model += (G_constraint == 2) # TODO: figure out which goalie is starting, so it doesn't recommend a lineup of goalies
     else: # temporary, just add a max of one goalie
-        model += (G_constraint <= 1) # TODO: figure out which goalie is starting, so it doesn't recommend a lineup of goalies
-    model += (total_players == numplayers)
+        # TODO: add constraint that at least one player from each team must be in roster
+        # TODO: figure out which goalie is starting, so it doesn't recommend a lineup of goalies
+        model += (G_constraint <= 2) 
+    model += (total_players_constraint == numplayers)
 
     print('--- (3/4) Solving the problem ---')
     model.solve()
@@ -95,7 +100,7 @@ def solve(rawdata, g_id, salary, numplayers):
     players["is_drafted"] = 0.0
 
     for var in model.variables():
-        players.iloc[int(var.name[1:]), 16] = var.varValue
+        players.iloc[int(var.name[1:]), players.columns.get_loc('is_drafted')] = var.varValue
 
     my_team = players[players["is_drafted"] == 1.0]
     my_team = my_team[["name", "position", "team", "salary", "fppg"]]
@@ -105,6 +110,7 @@ def solve(rawdata, g_id, salary, numplayers):
     print("Projected points: {}".format(my_team["fppg"].sum().round(1)))
 
     # write to json file
+    title = fetch_title(rawdata, g_id)
     if not os.path.exists('./results'):
         os.makedirs('./results')
     my_team.to_json('./results/' + retrieve_date(rawdata) + '-' + title + '.json', indent=2, orient='table')
