@@ -16,7 +16,6 @@ def retrieve_date(data):
     return datetime.fromtimestamp(timestamp).strftime('%Y%m%dT%H%M%S')
 
 def write_data(data, date):
-    print(date)
     if not os.path.exists('./rawdata'):
         os.makedirs('./rawdata')
     with open('./rawdata/' + date + '.json', 'w', encoding='utf-8') as f:
