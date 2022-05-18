@@ -27,7 +27,6 @@ def fetch_title(rawdata, g_id):
 
 def solve(rawdata, g_id, salary, numplayers):
     players = pd.DataFrame(rawdata['players']['result'])
-    # TODO: add filter for non-starting goalies and injured/suspended players
     if g_id != 'multigame':
         players = players[players.gameCode == g_id].reset_index()
 
@@ -80,17 +79,15 @@ def solve(rawdata, g_id, salary, numplayers):
     G_constraint = pulp.LpAffineExpression(g)
     total_players_constraint = pulp.LpAffineExpression(num_players)
 
-    # TODO: multigame is 2G, 2C, 3W, 2D
     if g_id == 'multigame':
         model += (LW_constraint <= 3)
         model += (C_constraint == 2)
         model += (RW_constraint <= 3)
         model += (D_constraint == 2)
-        model += (G_constraint == 2) # TODO: figure out which goalie is starting, so it doesn't recommend a lineup of goalies
-    else: # temporary, just add a max of one goalie
-        # TODO: add constraint that at least one player from each team must be in roster
-        # TODO: figure out which goalie is starting, so it doesn't recommend a lineup of goalies
-        model += (G_constraint <= 2) 
+        model += (G_constraint == 2)
+    else:
+        # TODO: add constraint that at least one player (excluding goalie) from each team must be in roster
+        model += (G_constraint <= 1) 
     model += (total_players_constraint == numplayers)
 
     print('--- (3/4) Solving the problem ---')
