@@ -15,17 +15,22 @@ def open_json():
 
 def fetch_title(rawdata, g_id):
     title = g_id
+    homeTeam = ''
+    awayTeam = ''
     if g_id != 'multigame':
         found = False
         while found == False:
             for player in rawdata['players']['result']:
                 if player['gameCode'] == g_id:
-                    title = player['homeTeam'] + 'v' + player['awayTeam']
+                    homeTeam = player['homeTeam']
+                    awayTeam = player['awayTeam']
+                    title = homeTeam + 'v' + awayTeam
                     found = True
                     break
-    return title
+    return title, homeTeam, awayTeam
 
-def solve(rawdata, g_id, salary, numplayers):
+def solve(rawdata, g_id,salary, numplayers):
+    title, homeTeam, awayTeam = fetch_title(rawdata, g_id)
     players = pd.DataFrame(rawdata['players']['result'])
     if g_id != 'multigame':
         players = players[players.gameCode == g_id].reset_index()
@@ -36,6 +41,10 @@ def solve(rawdata, g_id, salary, numplayers):
     players["D"] = (players["position"] == "D").astype(float)
     players["G"] = (players["position"] == "G").astype(float)
     players["salary"] = players["salary"].astype(float)
+    if g_id != 'mutligame':
+        # must have at least one player from each team (excluding goalies)
+        players["t1"] = (players["team"] == homeTeam).astype(float)
+        players["t2"] = (players["team"] == awayTeam).astype(float)
 
     model = pulp.LpProblem("DFS", pulp.LpMaximize)
 
@@ -47,6 +56,8 @@ def solve(rawdata, g_id, salary, numplayers):
     d = {}
     g = {}
     num_players = {}
+    t1 = {}
+    t2 = {}
 
     vars = []
 
@@ -64,6 +75,9 @@ def solve(rawdata, g_id, salary, numplayers):
         d[decision_var] = player["D"]
         g[decision_var] = player["G"]
         num_players[decision_var] = 1.0
+        if g_id != 'mutligame':
+            t1[decision_var] = player["t1"]
+            t2[decision_var] = player["t2"]
     
     objective_function = pulp.LpAffineExpression(total_points)
     model += objective_function
@@ -86,8 +100,12 @@ def solve(rawdata, g_id, salary, numplayers):
         model += (D_constraint == 2)
         model += (G_constraint == 2)
     else:
-        # TODO: add constraint that at least one player (excluding goalie) from each team must be in roster
-        model += (G_constraint <= 1) 
+        t1_constraint = pulp.LpAffineExpression(t1)
+        t2_constraint = pulp.LpAffineExpression(t2)
+        # FIXME: I don't think this is quite right .. but it works?
+        model += ((t1_constraint - G_constraint) >= 1)
+        model += ((t2_constraint - G_constraint) >= 1)
+        model += (G_constraint <= 2)
     model += (total_players_constraint == numplayers)
 
     print('--- (3/4) Solving the problem ---')
@@ -107,7 +125,6 @@ def solve(rawdata, g_id, salary, numplayers):
     print("Projected points: {}".format(my_team["fppg"].sum().round(1)))
 
     # write to json file
-    title = fetch_title(rawdata, g_id)
     if not os.path.exists('./results'):
         os.makedirs('./results')
     my_team.to_json('./results/' + retrieve_date(rawdata) + '-' + title + '.json', indent=2, orient='table')
