@@ -16,17 +16,24 @@ HEALTHY_SCRATCH_URL = 'https://www.dailyfaceoff.com/hockey-player-news/line-chan
 def fetch_data():
     jsonurl = urlopen(YAHOO_API_ENDPOINT)
     data = json.loads(jsonurl.read())
+    # TODO: remove redundancy in functions that remove players
+    if (os.path.exists('./geckodriver')):
+        data = remove_scratched_players(data)
+    data = remove_injured_players(data)
+    data = remove_nonstarting_goalies(data)
     return data
 
 def retrieve_date(data):
     timestamp = data['currentTime'] / 1000 # Yahoo lists in ms, datetime uses seconds
-    return datetime.fromtimestamp(timestamp).strftime('%Y%m%dT%H%M%S')
+    return datetime.fromtimestamp(timestamp).strftime('%Y%m%dT%I%M')
 
 def write_data(data, date):
     if not os.path.exists('./rawdata'):
         os.makedirs('./rawdata')
-    with open('./rawdata/' + date + '.json', 'w', encoding='utf-8') as f:
+    path = './rawdata/' + date + '.json'
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4)
+    return path
 
 def print_data(data):
     json.dump(data, sys.stdout, indent=4)
@@ -116,10 +123,6 @@ def remove_scratched_players(data):
 
 def main():
     data = fetch_data()
-    # TODO: remove redundancy in functions that remove players
-    data = remove_scratched_players(data)
-    data = remove_injured_players(data)
-    data = remove_nonstarting_goalies(data)
     date = retrieve_date(data)
     if len(sys.argv) == 2:
         if sys.argv[1] == '-file' or sys.argv[1] == '-f':

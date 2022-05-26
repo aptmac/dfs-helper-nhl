@@ -9,8 +9,8 @@ from datetime import datetime
 
 rawdata = {}
 
-def open_json():
-    with open(sys.argv[1], 'r') as f:
+def open_json(path):
+    with open(path, 'r') as f:
         return json.load(f)
 
 def fetch_title(rawdata, g_id):
@@ -137,14 +137,14 @@ def retrieve_date(data):
 
 def main():
     if len(sys.argv) == 2:
-        rawdata = open_json()
+        rawdata = open_json(sys.argv[1])
     else:
         rawdata = json.loads(sys.stdin.read())
     # Create lineup for the multigame slate
     solve(rawdata, 'multigame', rawdata['salaryCapInfo']['result'][0]['multiGameSalaryCap'], 9)
     # Create lineups for individual games
-    for key in rawdata['salaryCapInfo']['result'][0]['singleGameSalaryCapMap'].keys():
-        g_id, salary = key, rawdata['salaryCapInfo']['result'][0]['singleGameSalaryCapMap'][key]
+    for g_id in rawdata['salaryCapInfo']['result'][0]['singleGameSalaryCapMap'].keys():
+        salary = rawdata['salaryCapInfo']['result'][0]['singleGameSalaryCapMap'][g_id]
         solve(rawdata, g_id, salary, 5)
 
 if __name__ == "__main__":

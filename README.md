@@ -14,6 +14,13 @@ Another two dependencies that are (optionally) required for the fetch script is 
 
 ## How to use:
 
+### Method 1: Use the `dfs_helper.py` script
+
+The `dfs_helper.py` script acts as an interface for the fetcher and solver scripts. It allows the user to easily download new data, import existing data, and create rosters based on their needs. There are built-in settings that can be configured based on the options in the manual solver script. This includes requesting multiple rosters (coming soon tm), including and excluding certain players in these rosters (also coming soon tm), and indicating where the results should be written to.
+
+`> python dfs_helper.py`
+
+### Method 2: Run the fetch and solver scripts manually
 First you need to fetch the data (salary, DFS game information, and projected scores).
 
 `> python fetch_data.py (-p | -f)`
