@@ -10,7 +10,7 @@ We'll need a handful of dependencies (`beautifulsoup`, `pandas`, and `PuLP`) for
 
 `> pip3 install -r requirements.txt`
 
-Another dependency that is (optionally) required for the fetch script is `geckodriver`. This dependency must be set up manually, and is as simple as downloading the latest release of `geckodriver` and extracting the file into this project's directory. There is a check in `fetch_data.py` that looks for `./geckodriver`, so if you place the driver anywhere else then there will be some edits involved. `geckodriver` allows us to use Selenium to scrape websites that might otherwise force `requests` to solve a captcha, or sites that load their information on a delay using JavaScript to avoid bots from scraping all their juicy information.
+Another two dependencies that are (optionally) required for the fetch script is `geckodriver` and `Firefox` (the browser). These dependencies must be set up manually, and is as simple as downloading the latest release of `geckodriver` and extracting the file into this project's directory, and just installing the Firefox application. There is a check in `fetch_data.py` that looks for `./geckodriver`, so if you place the driver anywhere else then there will be some edits involved. `geckodriver` allows us to use Selenium to scrape websites that might otherwise force `requests` to solve a captcha, or sites that load their information on a delay using JavaScript to avoid bots from scraping all their juicy information.
 
 ## How to use:
 
