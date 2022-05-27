@@ -43,10 +43,29 @@ SOLVER_OPTIONS="""\
     5. Set output location
     6. Back
 """
-
 CURRENT_FILE = 'Current data file loaded: {}'
 OPTION_SELECTION = 'Select your option: '
 ERROR_INVALID_OPTION = 'ERROR: You have selected an invalid option. Please try again.'
+
+settings = {
+    'rosters': 0,
+    'include': [],
+    'exclude': [],
+    'results': 'console'
+}
+
+# global setter functions
+def set_shutdown(b):
+    global shutdown
+    shutdown = b
+
+def set_file(path):
+    global file
+    file = path
+
+def set_rawdata(data):
+    global rawdata
+    rawdata = data
 
 def cls():
     print("\033c", end='') # https://stackoverflow.com/a/50560686
@@ -73,6 +92,7 @@ def fetch_data():
     path = fd.write_data(data, fd.retrieve_date(data))
     set_file(path)
 
+# TODO: maybe this just parses all the files in rawdata with the option of selecting which file you want to use instead of having to type
 def import_data():
     path = input('Please type the path to the file: ')
     if os.path.exists(path):
@@ -111,28 +131,20 @@ def solve():
     return None
 
 def include_player(player):
+    player = input('Functionality coming soon(tm) .. press any key to continue..')
     return None
 
 def exclude_player(player):
+    player = input('Functionality coming soon(tm) .. press any key to continue..')
     return None
 
 def set_num_solutions(num):
+    player = input('Functionality coming soon(tm) .. press any key to continue..')
     return None
 
 def set_output_location(location):
+    player = input('Functionality coming soon(tm) .. press any key to continue..')
     return None
-
-def set_shutdown(b):
-    global shutdown
-    shutdown = b
-
-def set_file(path):
-    global file
-    file = path
-
-def set_rawdata(data):
-    global rawdata
-    rawdata = data
 
 def init():
     set_shutdown(False)

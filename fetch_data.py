@@ -17,8 +17,7 @@ def fetch_data():
     jsonurl = urlopen(YAHOO_API_ENDPOINT)
     data = json.loads(jsonurl.read())
     # TODO: remove redundancy in functions that remove players
-    if (os.path.exists('./geckodriver')):
-        data = remove_scratched_players(data)
+    data = remove_scratched_players(data)
     data = remove_injured_players(data)
     data = remove_nonstarting_goalies(data)
     return data
