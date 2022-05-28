@@ -6,7 +6,7 @@ This repository contains a couple of Python scripts that automate the creation o
 
 ## Installing dependencies
 
-We'll need a handful of dependencies (`beautifulsoup`, `pandas`, and `PuLP`) for these scripts to work. If you don't already have them installed on your machine, you can install them using the provided `requirments.txt` file 
+We'll need a handful of dependencies (`beautifulsoup`, `pandas`, and `PuLP`) for these scripts to work. If you don't already have them installed on your machine, you can install them using the provided `requirments.txt` file:
 
 `> pip3 install -r requirements.txt`
 
@@ -32,8 +32,8 @@ At the moment there's no built-in way to manipulate the json data, so if there's
 
 ## Initial Thoughts (2022)
 
-I'm a bit late to the party here, I decided to take a look into NHL DFS for the second round of the 2022 Stanley Cup playoffs. Despite that, I was able to play my 5 free placement matches and join a couple of free DFS leagues. At the moment, DFS has been placed into the illegal gambling category in Ontario and all major DFS providers won't allow us to play in paid contests (BOO, and not boo-urns). As a result, I'll be able to play the free leagues, but no more placement matches for me .. :(
+I'm a bit late to the party here, I decided to take a look into NHL DFS for the second round of the 2022 Stanley Cup playoffs. Despite that, I was able to play my 5 free placement matches and join a couple of free DFS leagues. At the moment, DFS has been placed into the illegal gambling category in Ontario and all major DFS providers won't allow us to play in paid contests (BOO, and not boo-urns). As a result, I'll be able to play the free leagues, but no more quick matches for me .. :(
 
-![diamond](https://user-images.githubusercontent.com/10425301/169357241-3cc3b236-ec6e-470c-8f55-f91f534b9811.png)
+![gold](https://user-images.githubusercontent.com/10425301/169357241-3cc3b236-ec6e-470c-8f55-f91f534b9811.png)
 
 Placement matches I went 4-1, getting a Gold ranking and placing into the 73rd percentile. So far so good, and I hope to revisit this once Ontario (hopefully) reverses the ban on DFS.
